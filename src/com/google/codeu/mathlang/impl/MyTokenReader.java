@@ -16,7 +16,7 @@ package com.google.codeu.mathlang.impl;
 
 import java.io.IOException;
 
-import com.google.codeu.mathlang.core.tokens.Token;
+import com.google.codeu.mathlang.core.tokens.*;
 import com.google.codeu.mathlang.parsing.TokenReader;
 
 // MY TOKEN READER
@@ -27,9 +27,14 @@ import com.google.codeu.mathlang.parsing.TokenReader;
 // work with the test of the system.
 public final class MyTokenReader implements TokenReader {
 
+  String source;
+  private int pos = 0;
+
   public MyTokenReader(String source) {
     // Your token reader will only be given a string for input. The string will
     // contain the whole source (0 or more lines).
+    this.source = source;
+    pos = 0;
   }
 
   @Override
@@ -41,6 +46,92 @@ public final class MyTokenReader implements TokenReader {
     // If for any reason you detect an error in the input, you may throw an IOException
     // which will stop all execution.
 
-    return null;
+    String substr = source.substring(pos); 
+
+    if (substr.length() == 0) {
+      return null;
+    }
+
+    int start = 0;
+    int end = start;
+
+    char startChar = substr.charAt(start);
+
+    if (startChar == '\n' || startChar == ' ') {
+      pos++;
+      return next();
+    }
+
+    // SYMBOL
+    if (startChar == '-' || startChar == '+' || startChar == '=' || startChar == ';') {
+      System.out.println("Symbol");
+
+      pos++;
+      return new SymbolToken(startChar);
+    }
+
+    // STRING
+    if (startChar == '"') {
+      System.out.println("String");
+
+      // start quote is not a part of the string
+      start++;
+
+      while (substr.charAt(end) != '"') {
+        end++;
+
+        if (end > (substr.length() - 1)) {
+          throw new IOException("Invalid string");
+        }
+      }
+
+      // inclusive to exclusive (end char will be the end quote)
+      String string = substr.substring(start, end);
+
+      // position will be the current position plus the length of the string plus 1 to land on the next token type
+      pos = pos + end + 1;
+
+      return new StringToken(string);
+    }
+
+    // NAME
+    if (Character.isLetter(startChar)) {
+      System.out.println("Name");
+
+      while (Character.isLetter(substr.charAt(end)) || Character.isDigit(substr.charAt(end))) {
+        end++; 
+
+        if (end > (substr.length() - 1)) {
+          throw new IOException("Invalid name");
+        }
+      }
+
+      String name = substr.substring(start, end);
+
+      pos = pos + end;
+
+      return new NameToken(name);
+    }
+
+    // NUMBER
+    if (Character.isDigit(startChar) || startChar == '.') {
+      System.out.println("Number");
+
+      while (Character.isDigit(substr.charAt(end)) || substr.charAt(end) == '.') {
+        end++;
+
+        if (end > (substr.length() - 1)) {
+          throw new IOException("Invalid number");
+        }
+      }
+
+      double number = Double.parseDouble(substr.substring(start, end));
+
+      pos = pos + end;
+
+      return new NumberToken(number);
+    }
+
+    throw new IOException("");
   }
 }
