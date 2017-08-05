@@ -64,24 +64,21 @@ public final class MyTokenReader implements TokenReader {
 
     // SYMBOL
     if (startChar == '-' || startChar == '+' || startChar == '=' || startChar == ';') {
-      System.out.println("Symbol");
-
       pos++;
       return new SymbolToken(startChar);
     }
 
     // STRING
     if (startChar == '"') {
-      System.out.println("String");
-
       // start quote is not a part of the string
       start++;
+      end = start;
 
       while (substr.charAt(end) != '"') {
         end++;
 
         if (end > (substr.length() - 1)) {
-          throw new IOException("Invalid string");
+          throw new IOException("Error: Unclosed string");
         }
       }
 
@@ -96,13 +93,11 @@ public final class MyTokenReader implements TokenReader {
 
     // NAME
     if (Character.isLetter(startChar)) {
-      System.out.println("Name");
-
       while (Character.isLetter(substr.charAt(end)) || Character.isDigit(substr.charAt(end))) {
         end++; 
 
         if (end > (substr.length() - 1)) {
-          throw new IOException("Invalid name");
+          throw new IOException("Error: Invalid name");
         }
       }
 
@@ -115,13 +110,11 @@ public final class MyTokenReader implements TokenReader {
 
     // NUMBER
     if (Character.isDigit(startChar) || startChar == '.') {
-      System.out.println("Number");
-
       while (Character.isDigit(substr.charAt(end)) || substr.charAt(end) == '.') {
         end++;
 
         if (end > (substr.length() - 1)) {
-          throw new IOException("Invalid number");
+          throw new IOException("Error: Invalid number");
         }
       }
 
