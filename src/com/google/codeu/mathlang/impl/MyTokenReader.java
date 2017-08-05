@@ -110,12 +110,27 @@ public final class MyTokenReader implements TokenReader {
 
     // NUMBER
     if (Character.isDigit(startChar) || startChar == '.') {
+      // a double can only contain one decimal point
+      int decimals = 0;
+
+      if (startChar == '.') {
+        decimals++;
+      }
+
       while (Character.isDigit(substr.charAt(end)) || substr.charAt(end) == '.') {
         end++;
+
+        if (substr.charAt(end) == '.') {
+          decimals++;
+        }
 
         if (end > (substr.length() - 1)) {
           throw new IOException("Error: Invalid number");
         }
+      }
+
+      if (decimals > 1) {
+        throw new IOException("Error: Invalid number");
       }
 
       double number = Double.parseDouble(substr.substring(start, end));
@@ -125,6 +140,6 @@ public final class MyTokenReader implements TokenReader {
       return new NumberToken(number);
     }
 
-    throw new IOException("");
+    throw new IOException("Syntax Error");
   }
 }
