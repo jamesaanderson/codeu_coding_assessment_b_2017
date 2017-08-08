@@ -27,8 +27,8 @@ import com.google.codeu.mathlang.parsing.TokenReader;
 // work with the test of the system.
 public final class MyTokenReader implements TokenReader {
 
-  String source;
-  private int pos = 0;
+  private final String source;
+  private int pos;
 
   public MyTokenReader(String source) {
     // Your token reader will only be given a string for input. The string will
